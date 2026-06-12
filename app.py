@@ -26,6 +26,8 @@ bp_b64 = img_to_base64("bp/bp.png")
 voting_b64 = img_to_base64("voting/voting.png")
 encryption_b64 = img_to_base64("encryption/encryption.png")
 resume_b64 = img_to_base64("resume.pdf")
+ai_cert_b64 = img_to_base64("certs/ai.jpeg")
+msoffice_cert_b64 = img_to_base64("certs/msoffice.jpg")
 
 # -----------------------
 # GLOBAL CSS
@@ -557,6 +559,160 @@ p, li, span, div {{
 .cert-title {{ font-weight: 700; font-size: 15px; color: #ffffff; margin-bottom: 2px; }}
 .cert-sub {{ font-size: 13px; color: #94a3b8; }}
 
+/* ---------- CERTIFICATE CARDS (with image) ---------- */
+.cert-card-img {{
+    background: rgba(255,255,255,0.045);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 18px;
+    overflow: hidden;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.25s ease;
+}}
+
+.cert-card-img:hover {{
+    border-color: rgba(59,130,246,0.4);
+    box-shadow: 0 14px 34px rgba(0,0,0,0.4);
+    transform: translateY(-5px);
+}}
+
+.cert-thumb-wrap {{
+    position: relative;
+    overflow: hidden;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    cursor: zoom-in;
+}}
+
+.cert-thumb {{
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.45s ease, filter 0.3s ease;
+}}
+
+.cert-card-img:hover .cert-thumb {{
+    transform: scale(1.06);
+}}
+
+.cert-zoom-hint {{
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(8,18,36,0.0);
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 600;
+    opacity: 0;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(0px);
+}}
+
+.cert-thumb-wrap:hover .cert-zoom-hint {{
+    opacity: 1;
+    background: rgba(8,18,36,0.45);
+    backdrop-filter: blur(2px);
+}}
+
+.cert-card-body {{
+    padding: 20px 22px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    gap: 8px;
+}}
+
+.cert-verified-badge {{
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #86efac;
+    background: rgba(34,197,94,0.10);
+    border: 1px solid rgba(34,197,94,0.3);
+    padding: 4px 12px;
+    border-radius: 999px;
+    width: fit-content;
+}}
+
+.cert-card-title {{
+    font-family: 'Sora', sans-serif;
+    font-size: 17px;
+    font-weight: 700;
+    color: #ffffff;
+}}
+
+.cert-card-issuer {{
+    font-size: 13px;
+    font-weight: 600;
+    color: #93c5fd;
+}}
+
+.cert-card-desc {{
+    font-size: 13px;
+    color: #94a3b8;
+    line-height: 1.55;
+    flex-grow: 1;
+}}
+
+/* ---------- CERTIFICATE LIGHTBOX ---------- */
+.cert-lightbox {{
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    background: rgba(5,11,24,0.88);
+    backdrop-filter: blur(6px);
+    align-items: center;
+    justify-content: center;
+    cursor: zoom-out;
+    animation: fadeInLb 0.2s ease;
+}}
+
+.cert-lightbox.open {{ display: flex; }}
+
+@keyframes fadeInLb {{
+    from {{ opacity: 0; }}
+    to {{ opacity: 1; }}
+}}
+
+.cert-lightbox img {{
+    max-width: 90vw;
+    max-height: 88vh;
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,0.15);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+}}
+
+.cert-lightbox .lb-close {{
+    position: absolute;
+    top: 24px;
+    right: 32px;
+    color: #ffffff;
+    font-size: 32px;
+    font-weight: 700;
+    cursor: pointer;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}}
+
+.cert-lightbox .lb-close:hover {{
+    background: rgba(59,130,246,0.25);
+    border-color: #3b82f6;
+}}
+
 .ach-card {{
     background: rgba(255,255,255,0.045);
     border: 1px solid rgba(255,255,255,0.08);
@@ -1011,20 +1167,48 @@ st.markdown('<div class="section-title">Certifications</div>', unsafe_allow_html
 
 c1, c2 = st.columns(2)
 with c1:
-    st.markdown("""
-    <div class="cert-card">
-        <div class="cert-title">🤖 Artificial Intelligence For All</div>
-        <div class="cert-sub">IUCEE Foundation • 2025</div>
+    st.markdown(f"""
+    <div class="cert-card-img">
+        <div class="cert-thumb-wrap" onclick="document.getElementById('lb-ai').classList.add('open')">
+            <img class="cert-thumb" src="data:image/jpeg;base64,{ai_cert_b64}">
+            <div class="cert-zoom-hint">🔍 Click to enlarge</div>
+        </div>
+        <div class="cert-card-body">
+            <div class="cert-verified-badge">🏅 Verified Certificate</div>
+            <div class="cert-card-title">Artificial Intelligence For All</div>
+            <div class="cert-card-issuer">IUCEE Foundation • 2025</div>
+            <div class="cert-card-desc">Completed foundational training in Artificial Intelligence concepts, applications, and modern AI technologies.</div>
+        </div>
     </div>
     """, unsafe_allow_html=True)
+
 with c2:
-    st.markdown("""
-    <div class="cert-card">
-        <div class="cert-title">📊 Microsoft Office Certification</div>
-        <div class="cert-sub">Udemy</div>
+    st.markdown(f"""
+    <div class="cert-card-img">
+        <div class="cert-thumb-wrap" onclick="document.getElementById('lb-ms').classList.add('open')">
+            <img class="cert-thumb" src="data:image/jpeg;base64,{msoffice_cert_b64}">
+            <div class="cert-zoom-hint">🔍 Click to enlarge</div>
+        </div>
+        <div class="cert-card-body">
+            <div class="cert-verified-badge">🏅 Verified Certificate</div>
+            <div class="cert-card-title">Microsoft Office Certification</div>
+            <div class="cert-card-issuer">Udemy</div>
+            <div class="cert-card-desc">Completed training in Microsoft Office tools including Word, Excel, and PowerPoint.</div>
+        </div>
     </div>
     """, unsafe_allow_html=True)
-st.caption("📎 Add certificate image files (e.g. certs/ai.png, certs/msoffice.png) and I can wire up click-to-enlarge thumbnails for each card.")
+
+# Lightbox overlays for certificate enlargement
+st.markdown(f"""
+<div class="cert-lightbox" id="lb-ai" onclick="this.classList.remove('open')">
+    <div class="lb-close" onclick="document.getElementById('lb-ai').classList.remove('open')">✕</div>
+    <img src="data:image/jpeg;base64,{ai_cert_b64}" onclick="event.stopPropagation()">
+</div>
+<div class="cert-lightbox" id="lb-ms" onclick="this.classList.remove('open')">
+    <div class="lb-close" onclick="document.getElementById('lb-ms').classList.remove('open')">✕</div>
+    <img src="data:image/jpeg;base64,{msoffice_cert_b64}" onclick="event.stopPropagation()">
+</div>
+""", unsafe_allow_html=True)
 
 st.markdown('<hr class="section-divider">', unsafe_allow_html=True)
 
