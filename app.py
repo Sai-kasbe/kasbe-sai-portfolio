@@ -1,6 +1,8 @@
 import streamlit as st
 import base64
 import os
+from io import BytesIO
+from PIL import Image
 
 # -----------------------
 # PAGE CONFIG
@@ -26,7 +28,16 @@ bp_b64 = img_to_base64("bp/bp.png")
 voting_b64 = img_to_base64("voting/voting.png")
 encryption_b64 = img_to_base64("encryption/encryption.png")
 resume_b64 = img_to_base64("resume.pdf")
-ai_cert_b64 = img_to_base64("certs/ai.jpeg")
+def img_to_base64_rotated(path, angle=-90):
+    if os.path.exists(path):
+        img = Image.open(path)
+        img = img.rotate(angle, expand=True)
+        buf = BytesIO()
+        img.save(buf, format="JPEG")
+        return base64.b64encode(buf.getvalue()).decode()
+    return ""
+
+ai_cert_b64 = img_to_base64_rotated("certs/ai.jpeg")
 msoffice_cert_b64 = img_to_base64("certs/msoffice.jpg")
 
 # -----------------------
