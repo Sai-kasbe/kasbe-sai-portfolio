@@ -28,7 +28,7 @@ bp_b64 = img_to_base64("bp/bp.png")
 voting_b64 = img_to_base64("voting/voting.png")
 encryption_b64 = img_to_base64("encryption/encryption.png")
 resume_b64 = img_to_base64("resume.pdf")
-def img_to_base64_rotated(path, angle=-90):
+def img_to_base64_rotated(path, angle=90):
     if os.path.exists(path):
         img = Image.open(path)
         img = img.rotate(angle, expand=True)
@@ -36,6 +36,12 @@ def img_to_base64_rotated(path, angle=-90):
         img.save(buf, format="JPEG")
         return base64.b64encode(buf.getvalue()).decode()
     return ""
+
+def load_rotated_image(path, angle=90):
+    if os.path.exists(path):
+        img = Image.open(path)
+        return img.rotate(angle, expand=True)
+    return None
 
 ai_cert_b64 = img_to_base64_rotated("certs/ai.jpeg")
 msoffice_cert_b64 = img_to_base64("certs/msoffice.jpg")
@@ -593,7 +599,6 @@ p, li, span, div {{
     position: relative;
     overflow: hidden;
     border-bottom: 1px solid rgba(255,255,255,0.08);
-    cursor: zoom-in;
 }}
 
 .cert-thumb {{
@@ -606,27 +611,6 @@ p, li, span, div {{
 
 .cert-card-img:hover .cert-thumb {{
     transform: scale(1.06);
-}}
-
-.cert-zoom-hint {{
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(8,18,36,0.0);
-    color: #ffffff;
-    font-size: 13px;
-    font-weight: 600;
-    opacity: 0;
-    transition: all 0.3s ease;
-    backdrop-filter: blur(0px);
-}}
-
-.cert-thumb-wrap:hover .cert-zoom-hint {{
-    opacity: 1;
-    background: rgba(8,18,36,0.45);
-    backdrop-filter: blur(2px);
 }}
 
 .cert-card-body {{
@@ -669,59 +653,6 @@ p, li, span, div {{
     color: #94a3b8;
     line-height: 1.55;
     flex-grow: 1;
-}}
-
-/* ---------- CERTIFICATE LIGHTBOX ---------- */
-.cert-lightbox {{
-    display: none;
-    position: fixed;
-    inset: 0;
-    z-index: 2000;
-    background: rgba(5,11,24,0.88);
-    backdrop-filter: blur(6px);
-    align-items: center;
-    justify-content: center;
-    cursor: zoom-out;
-    animation: fadeInLb 0.2s ease;
-}}
-
-.cert-lightbox.open {{ display: flex; }}
-
-@keyframes fadeInLb {{
-    from {{ opacity: 0; }}
-    to {{ opacity: 1; }}
-}}
-
-.cert-lightbox img {{
-    max-width: 90vw;
-    max-height: 88vh;
-    border-radius: 14px;
-    border: 1px solid rgba(255,255,255,0.15);
-    box-shadow: 0 20px 60px rgba(0,0,0,0.6);
-}}
-
-.cert-lightbox .lb-close {{
-    position: absolute;
-    top: 24px;
-    right: 32px;
-    color: #ffffff;
-    font-size: 32px;
-    font-weight: 700;
-    cursor: pointer;
-    background: rgba(255,255,255,0.08);
-    border: 1px solid rgba(255,255,255,0.18);
-    border-radius: 50%;
-    width: 44px;
-    height: 44px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s ease;
-}}
-
-.cert-lightbox .lb-close:hover {{
-    background: rgba(59,130,246,0.25);
-    border-color: #3b82f6;
 }}
 
 .ach-card {{
@@ -1180,9 +1111,8 @@ c1, c2 = st.columns(2)
 with c1:
     st.markdown(f"""
     <div class="cert-card-img">
-        <div class="cert-thumb-wrap" onclick="document.getElementById('lb-ai').classList.add('open')">
+        <div class="cert-thumb-wrap">
             <img class="cert-thumb" src="data:image/jpeg;base64,{ai_cert_b64}">
-            <div class="cert-zoom-hint">🔍 Click to enlarge</div>
         </div>
         <div class="cert-card-body">
             <div class="cert-verified-badge">🏅 Verified Certificate</div>
@@ -1193,12 +1123,16 @@ with c1:
     </div>
     """, unsafe_allow_html=True)
 
+    with st.expander("🔍 View Full Certificate"):
+        ai_img = load_rotated_image("certs/ai.jpeg")
+        if ai_img:
+            st.image(ai_img, use_container_width=True)
+
 with c2:
     st.markdown(f"""
     <div class="cert-card-img">
-        <div class="cert-thumb-wrap" onclick="document.getElementById('lb-ms').classList.add('open')">
+        <div class="cert-thumb-wrap">
             <img class="cert-thumb" src="data:image/jpeg;base64,{msoffice_cert_b64}">
-            <div class="cert-zoom-hint">🔍 Click to enlarge</div>
         </div>
         <div class="cert-card-body">
             <div class="cert-verified-badge">🏅 Verified Certificate</div>
@@ -1209,17 +1143,10 @@ with c2:
     </div>
     """, unsafe_allow_html=True)
 
-# Lightbox overlays for certificate enlargement
-st.markdown(f"""
-<div class="cert-lightbox" id="lb-ai" onclick="this.classList.remove('open')">
-    <div class="lb-close" onclick="document.getElementById('lb-ai').classList.remove('open')">✕</div>
-    <img src="data:image/jpeg;base64,{ai_cert_b64}" onclick="event.stopPropagation()">
-</div>
-<div class="cert-lightbox" id="lb-ms" onclick="this.classList.remove('open')">
-    <div class="lb-close" onclick="document.getElementById('lb-ms').classList.remove('open')">✕</div>
-    <img src="data:image/jpeg;base64,{msoffice_cert_b64}" onclick="event.stopPropagation()">
-</div>
-""", unsafe_allow_html=True)
+    with st.expander("🔍 View Full Certificate"):
+        ms_img = load_rotated_image("certs/msoffice.jpg", angle=0)
+        if ms_img:
+            st.image(ms_img, use_container_width=True)
 
 st.markdown('<hr class="section-divider">', unsafe_allow_html=True)
 
