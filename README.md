@@ -4,7 +4,7 @@ A modern developer portfolio built using Streamlit, showcasing my projects, skil
 
 ## 🌐 Live Portfolio
 
-[View Portfolio](YOUR_STREAMLIT_LINK_HERE)
+[View Portfolio](https://kasbe-sai-portfolio-3rifyzeqbjiniunafnpu87.streamlit.app/)
 
 ---
 
